@@ -177,8 +177,9 @@ def main():
     GUILD_ID = ''  # Replace with your server ID
     CHANNEL_ID = ''  # Replace with your channel ID
 
-    with open('discord_authentification_keys.json', 'r') as file:
-        data = json.load(file)
+    # the authentification codes can be easily stored in a `*.json`
+    # with open('discord_authentification_keys.json', 'r') as file:
+    #     data = json.load(file)
 
     TOKEN = os.getenv('MY_DISCORD_MESSENGER_BOT_TOKEN')
     GUILD_ID = os.getenv('MY_DISCORD_SERVER_ID')
@@ -188,7 +189,7 @@ def main():
     TARGET_USER_ID = os.getenv('MY_DISCORD_USER_ID')             # eu: Bogdan24
 
 
-    file.close()
+    # file.close()
 
     intents = discord.Intents.default()
     intents.message_content = True
