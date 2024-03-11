@@ -1,0 +1,60 @@
+Date: 10/3/2024
+Time: 21:14
+Phone Number: +40730523622
+Message: Hello from Python! This is an instant WhatsApp message.
+--------------------
+Date: 10/3/2024
+Time: 21:15
+Phone Number: +40730523622
+Message: Hello from Python! This is an instant WhatsApp message.
+--------------------
+Date: 10/3/2024
+Time: 21:18
+Phone Number: +40 730 523 622
+Message: Hello from Python! This is an instant WhatsApp message.
+--------------------
+Date: 10/3/2024
+Time: 21:19
+Phone Number: +40 730 523 622
+Message: Hello from Python! This is an instant WhatsApp message.
+--------------------
+Date: 10/3/2024
+Time: 22:51
+Phone Number: +40 730 523 622
+Message: Current time: 22:51Nothing for now
+--------------------
+Date: 10/3/2024
+Time: 22:54
+Phone Number: +40 730 523 622
+Message: Current time: 22:54Nothing for now
+--------------------
+Date: 10/3/2024
+Time: 22:57
+Phone Number: +40 730 523 622
+Message: Current time: 22:57Nothing for now
+--------------------
+Date: 10/3/2024
+Time: 22:58
+Phone Number: +40 730 523 622
+Message: Current time: 22:58Nothing for now
+--------------------
+Date: 10/3/2024
+Time: 22:59
+Phone Number: +40 730 523 622
+Message: Current time: 22:59Nothing for now
+--------------------
+Date: 10/3/2024
+Time: 23:16
+Phone Number: +40 730 523 622
+Message: Current time: 23:15Nothing for now
+--------------------
+Date: 10/3/2024
+Time: 23:30
+Phone Number: +40 730 523 622
+Message: Current time: 23:30Nothing for now
+--------------------
+Date: 10/3/2024
+Time: 23:32
+Phone Number: +40 730 523 622
+Message: Current time: 23:31Nothing for now
+--------------------
