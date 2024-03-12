@@ -58,3 +58,13 @@ Time: 23:32
 Phone Number: +40 730 523 622
 Message: Current time: 23:31Nothing for now
 --------------------
+Date: 12/3/2024
+Time: 10:37
+Phone Number: +40 730 523 622
+Message: buna, bogdan
+--------------------
+Date: 12/3/2024
+Time: 10:44
+Phone Number: +40 730 523 622
+Message: buna, bogda
+--------------------

@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-# pip3 install pywhatkit
-import pywhatkit as kit     # for WhatsApp API
-
 # pip3 install discord
 import discord              # for Discord API
 import asyncio
@@ -12,21 +9,22 @@ import os, sys
 
 from datetime import datetime
 
+# structures
+from data_structures import WeeklyActivity
+from data_structures import OtherActivity
 
-def send_WhatsApp_message(message):
-    """ sends a Message to WhatsApp
-    """
-    try:
-        # Specify the phone number (with country code) and the message
-        phone_number = os.getenv('MY_PHONE_NUMBER')        # numarul meu
+# functions
+from data_structures import get_timestamp
+from data_structures import get_h_m
+from data_structures import get_day_idx
+from data_structures import get_day_str
 
-        # Send the message instantly
-        kit.sendwhatmsg_instantly(phone_number, message)
-
-        print(f"WhatsApp message to '{phone_number}' : {message}")
-
-    except Exception as e:
-        print(f"Error sending WhatsApp message: {e}")
+# global variables
+from data_structures import week_parity_code   # 0, 1, None
+from data_structures import is_holiday         # False, True
+from data_structures import weekly_activities
+from data_structures import other_activities
+from data_structures import deadlines
 
 
 
@@ -38,138 +36,37 @@ def get_msg():
     h_m = dt.strftime('%H:%M')
     day = dt.isoweekday()       # ziua saptamanii (index, numar de 1-7)
 
+    timestamp_now = get_timestamp(h_m)
+    ten_min_timestamp = get_timestamp("00:10")
 
     msg = ''
 
-
-    if day == 1 and h_m == '00:00':
-        week_parity = 1 - week_parity
-
-
-    if day == 1 and h_m == '07:00':
-        msg = 'Buna dimineata! \n'
-
-        if week_parity == 0:
-            msg += 'Esti pe saptamana para'
-        else:
-            msg += 'Esti pe saptamana impara'
-
-
-    if day == 1 and (h_m == '09:50' or h_m == '10:00'):
-        msg = 'Lab de PCOM, 10:00 - 12:00, sala EG 205'
-
-    if day == 1 and (h_m == '11:50' or h_m == '12:00'):
-        if week_parity == 1:
-            msg = 'Curs de PCOM 12:00 - 14:00, sala PR 001'
-        else:
-            pass
-    
-    if day == 1 and (h_m == '13:50' or h_m == '14:00'):
-        if week_parity == 0:
-            msg = 'Curs de SOC (OBLIGATORIU), 14:00 - 16:00, sala PR 001'
-        else:
-            msg = 'Curs de ED, 14:00 - 16:00, sala PR 001'
-
-    
-    if day == 1 and (h_m == '15:50' or h_m == '16:00'):
-        msg = 'Curs de ELTH 16:00 - 18:00, sala AN 030'
     
 
-    if day == 2 and h_m == "05:00":
-        msg = 'Buna dimineata!'
-
-    if day == 2 and (h_m == '07:50' or h_m == '08:00'):
-        msg = 'Curs ED, 8:00 - 10:00, sala PR 001'
-
-    if day == 2 and (h_m == "08:50" or h_m == "10:00"):
-        msg = 'Curs SOC (OBLIGATORIU), 10:00 - 12:00, sala PR 001'
-
-    if day == 2 and (h_m == "11:50" or h_m == "12:00"):
-        if week_parity == 1:
-            msg = 'Curs PP (OBLIGATORIU), 12:00 - 14:00, sala PR 001'
-        else:
-            pass
-
-    if day == 2 and (h_m == '15:50' or h_m == '16:00'):
-        msg = 'Curs PA, 16:00 - 18:00, sala EC 004'
-
-    if day == 3 and h_m == '07:00':
-        msg = 'Buna dimineata!'
+    for activ in weekly_activities:
+        print(f"{activ}")
+        if activ.is_next_in_schedule() == True:
+            msg += f"Next: {activ}"
+        if activ.is_current_in_schedule() == True:
+            msg += f"Now: {activ}"
 
 
-    if day == 3 and (h_m == '09:50' or h_m == '10:00'):
-        msg = 'Curs PCOM, 10:00 - 12:00, sala PR 001'
-
-    if day == 3 and (h_m == '11:50' or '12:00'):
-        msg = 'Curs PP (OBLIGATORIU), 12:00 - 14:00, sala PR 001'
-
-    if day == 3 and (h_m == "15:50" or h_m == "16:00"):
-        if week_parity == 1:
-            msg = 'Seminar ED (impar), 16:00 - 18:00, sala EG 303'
-        else:
-            pass
-    
-    if day == 3 and (h_m == '17:50' or h_m == '18:00'):
-        if week_parity == 1:
-            msg = 'Curs PCT (impar), 18:00 - 20:00, sala A04 LEU'
-        else:
-            pass
 
 
-    if day == 4 and h_m == "05:00":
-        msg = 'Buna dimineata'
-
-    if day == 4 and (h_m == "07:50" or h_m == "08:00"):
-        if week_parity == 1:
-            msg = 'lab ELTH (impar), 8:00 - 10:00, sala EB 206, EB 207'
-        else:
-            msg = 'seminar ELTH (par), 8:00 - 10:00, sala PR 001'
-
-    if day == 4 and (h_m == '11:50' or h_m == '12:00'):
-        if week_parity == 1:
-            msg = 'Lab SOC (impar), 12:00 - 14:00, sala ED 220'
-        else:
-            pass
-
-    if day == 4 and (h_m == '13:50' or h_m == '14:00'):
-        if week_parity == 1:
-            msg = 'Lab SOC (impar), 14:00 - 16:00, sala ED 220'
-        else:
-            pass
-
-    if day == 4 and (h_m == '15:50' or h_m == '16:00'):
-        if week_parity == 1:
-            msg = 'Lab SOC (impar), 16:00 - 18:00, sala ED 220'
-        else:
-            pass
-
-
-    if day == 5 and h_m == '07:00':
-        msg = 'Buna dimineata'
-
-    if day == 5 and (h_m == '09:50' or h_m == '10:00'):
-        if week_parity == 1:
-            msg = 'sport (impar)'
-        else:
-            pass
-
-    if day == 5 and (h_m == "11:50" or h_m == '12:00'):
-        msg = 'Lab PA, 12:00 - 14:00, sala EG 405'
-
-
-    if day == 5 and (h_m == '13:50' or h_m == '14:00'):
-        msg = 'Lab PA, 14:00 - 16:00, sala EG 103 b'
-
-
-    if h_m == '21:00':
-        msg = 'Noapte buna!'
-
-
-    if msg != '':
-        send_WhatsApp_message(msg)
+    # if msg != '':
+    #     send_WhatsApp_message(msg)
 
 
     return msg
+
+
+
+def append_not_none(l, el):
+    if type(l) != list:
+        pass
+
+    if el is not None:
+        l.append(el)
 
 
 def get_min(h_m):
@@ -181,11 +78,107 @@ def get_min(h_m):
 
 
 
+def hardcode_schedule():
+
+    # `global` specifica interpretorului sa nu defineasca variabilele acestea in functie
+    # ci sa foloseasca variabilele globale care poarte aceste nume
+    global week_parity
+    global is_holiday
+    global weekly_activities
+    global other_activities
+    global deadlines
+
+    week_parity_code = 1        # 0, 1
+    is_holiday = False          # False, True
+    weekly_activities = []
+    other_activities = []
+    deadlines = []
+
+
+    # WeeklyActivity('name', 'location', 'descritption', 'day', 'start_time_h_m', 'stop_time_h_m', 'week_parity)
+    # luni:
+    new_activ = WeeklyActivity.new('Lab PCOM', 'sala EG 205', '-', 'luni', '10:00', '12:00', '-')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Curs SOC', 'sala PR 001', 'obligatoriu', 'luni', '12:00', '14:00', 'impar')
+    append_not_none(weekly_activities, new_activ)
+    new_acitv = WeeklyActivity.new('Curs PCOM', 'sala PR 001', '-', 'luni', '14:00', '16:00', 'impar')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Curs ED', 'sala PR 001', '-', 'luni', '14:00', '16:00', 'par')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Curs ELTH CA', 'sala AN 030', 'la seria CA', 'luni', '16:00', '18:00', '-')
+    append_not_none(weekly_activities, new_activ)
+    # marti:
+    new_activ = WeeklyActivity.new('Curs ED', 'sala PR 001', '-', 'marti', '8:00', '10:00', '-')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Curs SOC', 'sala PR 001', 'obligatoriu', 'marti', '10:00', '12:00', '-')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Curs PA', 'sala EC 004', '-', 'marti', '16:00', '18:00', '-')
+    append_not_none(weekly_activities, new_activ)
+    # miercuri:
+    new_activ = WeeklyActivity.new('seminar PCT', 'sala PR 106', '', 'miercuri', '8:00', '10:00', 'par')
+    append_not_none(weekly_activities, new_activ)
+    new_acitv = WeeklyActivity.new('Curs PCOM', 'sala PR 001', '-', 'miercuri', '10:00', '12:00', '-')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Curs PP', 'sala PR 001', 'obligatoriu', 'miercuri', '10:00', '12:00', '-')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('seminar ED', 'sala EG 303', '-', 'miercuri', '16:00', '18:00', 'impar')
+    append_not_none(weekly_activities, new_activ)
+    new_acitv = WeeklyActivity.new('Curs PCT', 'sala A04 LEU', 'optional', 'miercuri', '18:00', '20:00', 'par')
+    append_not_none(weekly_activities, new_activ)
+    # joi:
+    new_activ = WeeklyActivity.new('Lab SOC', 'sala ED 220', '-', 'joi', '12:00', '14:00', 'impar')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Lab SOC', 'sala ED 220', '-', 'joi', '14:00', '16:00', 'impar')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Lab ED', 'sala ED 314', '-', 'joi', '16:00', '18:00', 'impar')
+    append_not_none(weekly_activities, new_activ)
+    # vineri:
+    new_activ = WeeklyActivity.new('sport (impar)', 'sala de sport', '-', 'vineri', '8:00', '10:00', 'impar')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Lab PA', 'sala EG 405', '-', 'vineri', '10:00', '12:00', '-')
+    append_not_none(weekly_activities, new_activ)
+    new_activ = WeeklyActivity.new('Lab PP', 'sala EG 103 b', '-', 'vineri', '12:00', '14:00', '-')
+    append_not_none(weekly_activities, new_activ)
+
+
+
+def init_reset_schedule():
+    """ reseteaza tot orarul la o varianta care nu contine nimic
+    """
+
+    # `global` specifica interpretorului sa nu defineasca variabilele acestea in functie
+    # ci sa foloseasca variabilele globale care poarta aceste nume
+    global week_parity
+    global is_holiday
+    global weekly_activities
+    global other_activities
+    global deadlines
+
+    week_parity = 1
+    is_holiday = False
+    weekly_activities = []
+    other_activities = []
+    deadlines = []
+
+
+
+
 def messenger_API():
 
 
-    global week_parity 
-    week_parity = 0
+    # `global` specifica interpretorului sa nu defineasca variabilele acestea in functie
+    # ci sa foloseasca variabilele globale care poarta aceste nume
+    global week_parity
+    global is_holiday
+    global weekly_activities
+    global other_activities
+    global deadlines
+
+
+    init_reset_schedule()
+
+    hardcode_schedule()         # datele sunt deja inserate in program
+
 
 
     # sensitive data (token, ids) are stored in environment variables
@@ -211,10 +204,23 @@ def messenger_API():
         print(f"We have logged in as {client.user}")
 
         # first message
-        welcome_message = f"Hello, I'm your bot! I am now online and ready to assist. \n"
+        welcome_message = f"Hello, I'm your bot! I am now online and ready to assist.\n"
         
-        welcome_message += ("Even" if week_parity == 1 else "Odd")
-        welcome_message += " indexed week"
+        welcome_message += ("Even" if week_parity_code == 1 else "Odd")
+        welcome_message += f" indexed week\n"
+
+        welcome_message += f"\nAvailable commands:\n"
+        welcome_message += f"- `/get-all-cmds`\n"
+        welcome_message += f"- `/help [cmds]`\n\n"
+        welcome_message += f"- `/get-current-activity`\n"
+        welcome_message += f"- `/get-current-weekly-activity`\n"
+        welcome_message += f"- `/get-current-other-activity`\n"
+        welcome_message += f"- `/get-current-deadline`\n\n"
+        welcome_message += f"- `/get-next-activity`\n"
+        welcome_message += f"- `/get-next-weekly-activity`\n"
+        welcome_message += f"- `/get-next-other-activity`\n"
+        welcome_message += f"- `/get-next-deadline`\n\n"
+
 
         await send_discord_message(welcome_message)
 
