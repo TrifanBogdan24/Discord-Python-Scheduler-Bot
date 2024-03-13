@@ -24,7 +24,13 @@ class WeeklyActivity:
         self.week_parity = week_parity
 
     def __str__(self):
-        to_string = f"'{self.name}', {self.start_time} - {self.stop_time}, {self.location}"
+        to_string = ''
+        
+        if self.stop_time in [None, '', '-']:
+            to_string = f"{self.name}, begins at {self.start_time}, {self.location}"
+        else:
+            to_string = f"{self.name}, {self.start_time} - {self.stop_time}, {self.location}"
+        
         return to_string
 
     @staticmethod
