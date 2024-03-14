@@ -10,15 +10,10 @@ import os, sys
 
 from datetime import datetime
 
-# structures
+# classes
 from data_structures import WeeklyActivity
 from data_structures import OtherActivity
-
-# functions
-from data_structures import get_timestamp
-from data_structures import get_h_m
-from data_structures import get_day_idx
-from data_structures import get_day_str
+from data_structures import DataHandler
 
 # global variables
 from data_structures import week_parity_code   # 0, 1, None
@@ -37,8 +32,9 @@ def get_msg():
     h_m = dt.strftime('%H:%M')
     day = dt.isoweekday()       # ziua saptamanii (index, numar de 1-7)
 
-    timestamp_now = get_timestamp(h_m)
-    ten_min_timestamp = get_timestamp("00:10")
+
+    timestamp_now = DataHandler().get_timestamp(h_m)
+    ten_min_timestamp = DataHandler().get_timestamp("00:10")
 
     msg = ''
 
@@ -78,7 +74,7 @@ def get_min(h_m):
 
 
 
-def hardcode_schedule():
+def hardcode_schedule(user_id):
 
     # `global` specifica interpretorului sa nu defineasca variabilele acestea in functie
     # ci sa foloseasca variabilele globale care poarte aceste nume
@@ -97,47 +93,48 @@ def hardcode_schedule():
 
     # WeeklyActivity('name', 'location', 'descritption', 'day', 'start_time_h_m', 'stop_time_h_m', 'week_parity)
     # luni:
-    new_activ = WeeklyActivity.new('Lab PCOM', 'sala EG 205', '-', 'luni', '10:00', '12:00', '-')
+    new_activ = WeeklyActivity(user_id, 'Lab PCOM', 'sala EG 205', '-', 'luni', '10:00', '12:00', '-')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Curs SOC', 'sala PR 001', 'obligatoriu', 'luni', '12:00', '14:00', 'impar')
+    new_activ = WeeklyActivity(user_id, 'Curs SOC', 'sala PR 001', 'obligatoriu', 'luni', '12:00', '14:00', 'impar')
     append_not_none(weekly_activities, new_activ)
-    new_acitv = WeeklyActivity.new('Curs PCOM', 'sala PR 001', '-', 'luni', '14:00', '16:00', 'impar')
+    new_acitv = WeeklyActivity(user_id, 'Curs PCOM', 'sala PR 001', '-', 'luni', '14:00', '16:00', 'impar')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Curs ED', 'sala PR 001', '-', 'luni', '14:00', '16:00', 'par')
+    new_activ = WeeklyActivity(user_id, 'Curs ED', 'sala PR 001', '-', 'luni', '14:00', '16:00', 'par')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Curs ELTH CA', 'sala AN 030', 'la seria CA', 'luni', '16:00', '18:00', '-')
+    new_activ = WeeklyActivity(user_id, 'Curs ELTH CA', 'sala AN 030', 'la seria CA', 'luni', '16:00', '18:00', '-')
     append_not_none(weekly_activities, new_activ)
     # marti:
-    new_activ = WeeklyActivity.new('Curs ED', 'sala PR 001', '-', 'marti', '8:00', '10:00', '-')
+    new_activ = WeeklyActivity(user_id, 'Curs ED', 'sala PR 001', '-', 'marti', '8:00', '10:00', '-')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Curs SOC', 'sala PR 001', 'obligatoriu', 'marti', '10:00', '12:00', '-')
+    new_activ = WeeklyActivity(user_id, 'Curs SOC', 'sala PR 001', 'obligatoriu', 'marti', '10:00', '12:00', '-')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Curs PA', 'sala EC 004', '-', 'marti', '16:00', '18:00', '-')
+    new_activ = WeeklyActivity(user_id, 'Curs PA', 'sala EC 004', '-', 'marti', '16:00', '18:00', '-')
     append_not_none(weekly_activities, new_activ)
     # miercuri:
-    new_activ = WeeklyActivity.new('seminar PCT', 'sala PR 106', '', 'miercuri', '8:00', '10:00', 'par')
+    new_activ = WeeklyActivity(user_id, 'seminar PCT', 'sala PR 106', '', 'miercuri', '8:00', '10:00', 'par')
     append_not_none(weekly_activities, new_activ)
-    new_acitv = WeeklyActivity.new('Curs PCOM', 'sala PR 001', '-', 'miercuri', '10:00', '12:00', '-')
+    new_acitv = WeeklyActivity(user_id, 'Curs PCOM', 'sala PR 001', '-', 'miercuri', '10:00', '12:00', '-')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Curs PP', 'sala PR 001', 'obligatoriu', 'miercuri', '10:00', '12:00', '-')
+    new_activ = WeeklyActivity(user_id, 'Curs PP', 'sala PR 001', 'obligatoriu', 'miercuri', '10:00', '12:00', '-')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('seminar ED', 'sala EG 303', '-', 'miercuri', '16:00', '18:00', 'impar')
+    new_activ = WeeklyActivity(user_id, 'seminar ED', 'sala EG 303', '-', 'miercuri', '16:00', '18:00', 'impar')
     append_not_none(weekly_activities, new_activ)
-    new_acitv = WeeklyActivity.new('Curs PCT', 'sala A04 LEU', 'optional', 'miercuri', '18:00', '20:00', 'par')
+    new_acitv = WeeklyActivity(user_id, 'Curs PCT', 'sala A04 LEU', 'optional', 'miercuri', '18:00', '20:00', 'par')
     append_not_none(weekly_activities, new_activ)
     # joi:
-    new_activ = WeeklyActivity.new('Lab SOC', 'sala ED 220', '-', 'joi', '12:00', '14:00', 'impar')
+    new_activ = WeeklyActivity(user_id, 'sport (impar)', 'sala de sport', '-', 'joi', '10:00', '12:00', 'impar')
+    append_not_none(weekly_activities, new_acitv)
+    new_activ = WeeklyActivity(user_id, 'Lab SOC', 'sala ED 220', '-', 'joi', '12:00', '14:00', 'impar')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Lab SOC', 'sala ED 220', '-', 'joi', '14:00', '16:00', 'impar')
+    new_activ = WeeklyActivity(user_id, 'Lab SOC', 'sala ED 220', '-', 'joi', '14:00', '16:00', 'impar')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Lab ED', 'sala ED 314', '-', 'joi', '16:00', '18:00', 'impar')
+    new_activ = WeeklyActivity(user_id, 'Lab ED', 'sala ED 314', '-', 'joi', '16:00', '18:00', 'impar')
     append_not_none(weekly_activities, new_activ)
     # vineri:
-    new_activ = WeeklyActivity.new('sport (impar)', 'sala de sport', '-', 'vineri', '8:00', '10:00', 'impar')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Lab PA', 'sala EG 405', '-', 'vineri', '10:00', '12:00', '-')
+    new_activ = WeeklyActivity(user_id, 'Lab PA', 'sala EG 405', '-', 'vineri', '10:00', '12:00', '-')
     append_not_none(weekly_activities, new_activ)
-    new_activ = WeeklyActivity.new('Lab PP', 'sala EG 103 b', '-', 'vineri', '12:00', '14:00', '-')
+    new_activ = WeeklyActivity(user_id, 'Lab PP', 'sala EG 103 b', '-', 'vineri', '12:00', '14:00', '-')
     append_not_none(weekly_activities, new_activ)
 
 
@@ -193,7 +190,7 @@ def messenger_API():
 
     init_reset_schedule()
 
-    hardcode_schedule()
+    hardcode_schedule(int(USER_ID))
 
     async def send_discord_message(channel, target_user_id, msg_content):
         """ Trimite un mesaj pe un canal de pe un server de Discord
@@ -251,7 +248,7 @@ def messenger_API():
         welcome_message += f"- `get-next-deadline`\n"
         welcome_message += f"- `get-next-birthday`\n"
 
-        welcome_message += f"- add-weekly-activity`\n"
+        welcome_message += f"- `add-weekly-activity`\n"
         welcome_message += f"- `add-other-activity`\n"
         welcome_message += f"- `del-weekly-acitvity\n"
         welcome_message += f"- `del-deadline`\n"
