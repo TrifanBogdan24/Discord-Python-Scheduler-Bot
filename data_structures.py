@@ -14,11 +14,12 @@ deadlines = []
 
 
 
-class UserScheduler:
-    def __init__(self, id):
+class ScheduleUser:
+    def __init__(self, id, username):
         """constructor care instantiaza clasa
         """
         self.id = id
+        self.username = username
         self.week_parity = '1'  # prima saptama (impar)
         self.is_holiday = False
         self.weekly_activities = []
@@ -26,6 +27,23 @@ class UserScheduler:
         self.deadlines = []
         self.birthdays = []
 
+
+    @staticmethod
+    def get_user_by_id(id, users):
+        """ extrage un user dintr-o lista de utilizatarii
+        intoarce `None` daca `id`-ul acestuia nu se afla in lista
+        """
+
+        if type(users) != list:
+            return None
+
+        for user in users:
+            if type(user) != ScheduleUser:
+                continue
+            if user.id == id:
+                return user
+        
+        return None
 
 
 class DataHandler:
@@ -59,8 +77,13 @@ class DataHandler:
 
     @staticmethod
     def get_timestamp(h_m):
-        (hour, minute) = h_m.split(':')
-        return (60 * hour + minute)
+        try:
+            (hour, minute) = h_m.split(':')
+            hour = int(hour)
+            minute = int(minute)
+            return (60 * hour + minute)
+        except:
+            return 0
 
 
     @staticmethod
@@ -274,6 +297,7 @@ class WeeklyActivity:
         if valid_start_t and valid_stop_t and stop_time not in ['-', '']:
             start_timestamp = DataHandler.get_timestamp(start_time)
             stop_timestamp = DataHandler.get_timestamp(stop_time)
+            
             if start_timestamp > stop_timestamp:
                 err_msg += f"Err: Invalid time schedule {start_time} -> {stop_time}"
         
@@ -282,7 +306,7 @@ class WeeklyActivity:
             err_msg += f"Err: Invalid name of a day {week_day}"
 
 
-        if err_msg == '':
+        if err_msg != '':
             print(f"{err_msg}")
             return None
 
@@ -608,6 +632,14 @@ class Deadline:
         return super().__new__(cls)
 
 
+
+class Birthday:
+    def __init__(self, user_id, name, day, month, year):
+        self.user_id = user_id
+        self.name = name
+        self.day = day
+        self.month = month
+        self.year = year
 
 
 

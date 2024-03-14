@@ -11,9 +11,13 @@ import os, sys
 from datetime import datetime
 
 # classes
+from data_structures import DataHandler
+from data_structures import ScheduleUser
 from data_structures import WeeklyActivity
 from data_structures import OtherActivity
-from data_structures import DataHandler
+from data_structures import Deadline
+from data_structures import Birthday
+
 
 # global variables
 from data_structures import week_parity_code   # `0`, `1`, `-`
@@ -21,6 +25,7 @@ from data_structures import is_holiday         # False, True
 from data_structures import weekly_activities
 from data_structures import other_activities
 from data_structures import deadlines
+
 
 
 
@@ -52,8 +57,6 @@ def get_msg(target_user_id):
 
 
 
-    # if msg != '':
-    #     send_WhatsApp_message(msg)
 
 
     return msg
@@ -71,7 +74,7 @@ def append_not_none(l, el):
 def get_min(h_m):
     (hour, minute) = h_m.split(':')
 
-    print(f"{hour}   {minute}")
+    # print(f"{hour}   {minute}")
     
     return (hour, minute)
 
@@ -107,6 +110,7 @@ def hardcode_schedule(user_id):
     new_activ = WeeklyActivity(user_id, 'Curs ELTH CA', 'sala AN 030', 'la seria CA', 'luni', '16:00', '18:00', '-')
     append_not_none(weekly_activities, new_activ)
     # marti:
+    new_activ = WeeklyActivity(user_id, 'Curs ED', 'sala PR 001', '-', 'marti', '7:00', '10:00', '-')
     new_activ = WeeklyActivity(user_id, 'Curs ED', 'sala PR 001', '-', 'marti', '8:00', '10:00', '-')
     append_not_none(weekly_activities, new_activ)
     new_activ = WeeklyActivity(user_id, 'Curs SOC', 'sala PR 001', 'obligatoriu', 'marti', '10:00', '12:00', '-')
@@ -139,6 +143,7 @@ def hardcode_schedule(user_id):
     append_not_none(weekly_activities, new_activ)
     new_activ = WeeklyActivity(user_id, 'Lab PP', 'sala EG 103 b', '-', 'vineri', '12:00', '14:00', '-')
     append_not_none(weekly_activities, new_activ)
+
 
 
 
@@ -176,7 +181,6 @@ def messenger_API():
         # environment variables not set
         return
 
-
     # Discord authentification
     BOT_TOKEN = os.getenv('MY_DAILY_SCHEDULER_MESSENGER_DISCORD_BOT_TOKEN')
     SERVER_ID = os.getenv('MY_DAILY_SCHEDULER_DISCORD_SERVER_ID')
@@ -185,6 +189,7 @@ def messenger_API():
 
     intents = discord.Intents.default()
     intents.message_content = True
+    intents.members = True
 
     bot = commands.Bot(command_prefix='/', intents=intents)
 
@@ -195,9 +200,12 @@ def messenger_API():
     # Define your global variables here
 
 
+    users_array = []
+
     init_reset_schedule()
 
     hardcode_schedule(int(USER_ID))
+    
 
     async def send_discord_message(channel, target_user_id, msg_content):
         """ Trimite un mesaj pe un canal de pe un server de Discord
@@ -226,6 +234,11 @@ def messenger_API():
 
     @bot.event
     async def on_ready():
+        """ aceasta functia este rulata o singura data
+        la conectarea bot-ului la serverul de discord
+        """
+
+
         print(f"We have logged in as {bot.user}")
 
         # Get the channel and guild using IDs
@@ -243,31 +256,55 @@ def messenger_API():
         welcome_message += f"- `/clear`\n"
 
         welcome_message += f"- `/change-week-parity`\n"
-        welcome_message += f"- `/is-holiday`"
-        welcome_message += f"- `/is-working-week"
+        welcome_message += f"- `/is-holiday`\n"
+        welcome_message += f"- `/is-working-week`\n"
 
-        welcome_message += f"- `get-now`\n"
-        welcome_message += f"- `get-now-weekly-actvity`\n"
-        welcome_message += f"- `get-now-other-activity`\n"
+        welcome_message += f"- `/get-today-timetable`\n"
+        welcome_message += f"- `/get-weekly-timetable`\n"
+        welcome_message += f"- `/get-deadlines-table`\n"
+        welcome_message += f"- `/get-birthdays-table`\n"
 
-        welcome_message += f"- `get-next`\n"
-        welcome_message += f"- `get-next-weekly-activity`\n"
-        welcome_message += f"- `get-next-other-activity`\n"
-        welcome_message += f"- `get-next-deadline`\n"
-        welcome_message += f"- `get-next-birthday`\n"
 
-        welcome_message += f"- `add-weekly-activity`\n"
-        welcome_message += f"- `add-other-activity`\n"
-        welcome_message += f"- `del-weekly-acitvity\n"
-        welcome_message += f"- `del-deadline`\n"
-        welcome_message += f"- `del-birthday`\n"
+        welcome_message += f"- `/get-now`\n"
+        welcome_message += f"- `/get-now-weekly-actvity`\n"
+        welcome_message += f"- `/get-now-other-activity`\n"
 
-        welcome_message += f"- `shutdown-bot`\n"
+        welcome_message += f"- `/get-next`\n"
+        welcome_message += f"- `/get-next-weekly-activity`\n"
+        welcome_message += f"- `/get-next-other-activity`\n"
+        welcome_message += f"- `/get-next-deadline`\n"
+        welcome_message += f"- `/get-next-birthday`\n"
+
+        welcome_message += f"- `/add-weekly-activity`\n"
+        welcome_message += f"- `/add-other-activity`\n"
+        welcome_message += f"- `/del-weekly-acitvity`\n"
+        welcome_message += f"- `/del-deadline`\n"
+        welcome_message += f"- `/del-birthday`\n"
+
+        welcome_message += f"- `/shutdown-bot`\n"
 
 
         # Add your commands information here
 
         await send_discord_message(channel, USER_ID, welcome_message)
+
+        
+        users_array = []
+        
+        # Get the guild (server) where the bot is connected
+        guild = bot.guilds[0]  # Assuming the bot is only connected to one guild
+        
+        # Fetch all members in the guild
+        await guild.chunk()
+
+        # Extract user IDs and names and print them
+        print("User IDs and Names in this chat:")
+        
+        for member in guild.members:
+            if member == bot.user:
+                continue
+            print(f"ID: {member.id}, Name: {member.name}")
+            users_array.append(ScheduleUser(member.id, member.name))
 
         # Set up the task to send messages every minute
         bot.loop.create_task(send_discord_message_task(channel, USER_ID))
@@ -280,6 +317,8 @@ def messenger_API():
         
         # Enable interpreting the message as a command and reading it in the same time
         await bot.process_commands(message)
+
+
 
 
     @bot.command(name='help-all-cmds', command_prefix='/')
@@ -302,10 +341,104 @@ def messenger_API():
         or all of them, if there are no commands specified
         """
 
+
+
         help_msg = ''
 
         if len(args) == 0:
             help_msg = help_all_cmds_msg()
+
+
+        # all unique elements, keeps the order
+        unique_cmds = []
+        for arg in args:
+            if arg not in unique_cmds:
+                unique_cmds.append(arg)
+
+        unrecognised_cmds = []
+
+        for cmd in unique_cmds:
+
+            if cmd == 'help':
+                help_msg += f"- `/help` = opens the manual of all commands\n"
+                help_msg += f"- `/help [cmds]` = opens the manual of the specified commands\n"
+                continue
+            if cmd == 'help-all-cmds':
+                help_msg += f"- `/help-all-cmds` = opens the manul of all commands\n"
+                continue
+            if cmd == 'clear':
+                help_msg += f"- `/clear` = deletes all previous messages\n"
+                continue
+            if cmd == 'change-week-parity':
+                help_msg += f"- `/change-week-parity` = the week index becomes odd if it was even and vice versa"
+                continue
+            if cmd == 'is-holiday':
+                help_msg += f"- `/is-holiday` = weekly activities will no longer be displayed"
+                continue
+            if cmd == 'is-worling-week':
+                help_msg += f"- `/is-working-week` = weekly activities will be displayed"
+                continue
+            if cmd == 'get-today-timetable':
+                help_msg += f"- `/get-today-timetable` = gets relevant details for the today's plan\n"
+                continue
+            if cmd == 'get-weekly-timetable':
+                help_msg += f"- `/get-weekly-timetable` = prints the schedule for this week\n"
+                continue
+            if cmd == 'get-deadlines-table':
+                help_msg += f"- `/get-deadlines-table` = displays all the deadlines, sorted from the most to the least recent\n"
+                continue
+            if cmd == 'get-birthdays-table':
+                help_msg += f"- `/get-birthdays-table` = displays all the birthdays, sorted from the most to the least recent\n"
+                continue
+            if cmd == 'get-now':
+                help_msg += f"- `get-now` = displays the current activity (all types)\n"
+                continue
+            if cmd == 'get-next':
+                help_msg += f"- `get-next` = displays the nexts activity (all types)\n"
+                continue
+            if cmd == 'get-next-weekly-activity':
+                help_msg += f"- `get-next-weekly-actvity` = displays the next weekly activity\n"
+                continue
+            if cmd == 'get-next-other-activity':
+                help_msg += f"- `get-next-other-activity`= displays the next activity, other than the weekly ones\n"
+                continue
+            if cmd == 'get-next-deadline':
+                help_msg += f"- `get-next-other-activity`= displays the next activity, other than the weekly ones\n"
+                continue
+            if cmd == 'get-next-birthday':
+                help_msg += f"- `get-next-birthday` = displays the next birthday in chalendar\n"
+                continue
+            if cmd == 'add-weekly-activity':
+                help_msg += f"- `add-weekly-activity 'name' 'location' 'description' 'day' 'start_time' 'stop_time' 'week_parity`\n"
+                continue
+            if cmd == 'add-other-activity':
+                help_msg += f"- `add-other-activity 'name' 'location' 'description' 'day' 'month' 'year' start_time' 'stop_time`\n"
+                continue
+            if cmd == 'del-weekly-acitivity':
+                help_msg += f"- `del-weekly-acitvity 'name' 'day' 'week-parity' 'start_time' 'stop_time`\n"
+                continue
+            if cmd == 'del-other-activity':
+                help_msg += f"- `del-other-acitivity 'name' 'day' 'month' 'year' 'start_time' 'stop_time' `\n"
+                continue
+            if cmd == 'del-deadline':
+                help_msg += f"- `del-deadline 'name' 'day' 'month' 'year' 'time'`\n"
+                continue
+            if cmd == 'del-birthday':
+                help_msg += f"- `del-birthday 'name'`\n"
+                continue
+            if cmd == 'shutdown-bot':
+                help_msg += f"- `shutdown-bot` = the Discord bot will leave the chat\n"
+                continue
+            else:
+                unrecognised_cmds.append(cmd)
+
+
+        if len(unrecognised_cmds) == 1:
+            help_msg += f"\nUnrecognized command: '{unrecognised_cmds[0]}'"       
+        elif len(unrecognised_cmds) > 1:
+            help_msg += f"\nUnrecognized commands: {unrecognised_cmds}"       
+
+
         # sending the message to the chat
         await ctx.send(help_msg)
 
@@ -315,19 +448,22 @@ def messenger_API():
         help_msg = ''
         
 
-        help_msg += f"- `/help` = opens the manul of all commands\n"
-        help_msg += f"- `/help-all-cmds` = opens the manul of all commands\n"
+        help_msg += f"- `/help` = opens the manual of all commands\n"
         help_msg += f"- `/help [cmds]` = opens the manual of the specified commands\n"
+        help_msg += f"- `/help-all-cmds` = opens the manul of all commands\n"
         help_msg += f"- `/clear` = deletes all previous messages\n"
 
-        help_msg += f"- `/change-week-parity`"
-        help_msg += f"- `/is-holiday`"
-        help_msg += f"- `/is-working-week`"
+        help_msg += f"- `/change-week-parity` = the week index becomes odd if it was even and vice versa"
+        help_msg += f"- `/is-holiday` = weekly activities will no longer be displayed"
+        help_msg += f"- `/is-working-week` = weekly activities will be displayed"
+
+        help_msg += f"- `/get-today-timetable` = gets relevant details for the today's plan\n"
+        help_msg += f"- `/get-weekly-timetable` = prints the schedule for this week\n"
+        help_msg += f"- `/get-deadlines-table` = displays all the deadlines, sorted from the most to the least recent\n"
+        help_msg += f"- `/get-birthdays-table` = displays all the birthdays, sorted from the most to the least recent\n"
 
 
         help_msg += f"- `get-now` = displays the current activity (all types)\n"
-        help_msg += f"- `get-now-weekly-actvity` = displays the current weekly activity\n"
-        help_msg += f"- `get-now-other-activity`= displays the current activity, other than the weekly ones\n"
 
         help_msg += f"- `get-next` = displays the nexts activity (all types)\n"
         help_msg += f"- `get-next-weekly-actvity` = displays the next weekly activity\n"
@@ -366,7 +502,11 @@ def messenger_API():
     
     @bot.command(name='shutdown-bot', command_prefix='/')
     async def shutdonw_bot(ctx, *args):
-        """Command to disconect the bot"""
+        """Command to disconect the bot
+        """
+
+
+
         
         if int(ctx.author.id) == int(USER_ID):
             # disconecting the bot
