@@ -5,11 +5,26 @@ from datetime import datetime
 
 
 # global variables:
-week_parity_code = 1        # 0, 1
+week_parity_code = '1'        # '0', '1', '-'
 is_holiday = False          # False, True
 weekly_activities = []
 other_activities = []
 deadlines = []
+
+
+
+
+class UserScheduler:
+    def __init__(self, id):
+        """constructor care instantiaza clasa
+        """
+        self.id = id
+        self.week_parity = '1'  # prima saptama (impar)
+        self.is_holiday = False
+        self.weekly_activities = []
+        self.other_activities = []
+        self.deadlines = []
+        self.birthdays = []
 
 
 

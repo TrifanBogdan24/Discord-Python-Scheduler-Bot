@@ -16,7 +16,7 @@ from data_structures import OtherActivity
 from data_structures import DataHandler
 
 # global variables
-from data_structures import week_parity_code   # 0, 1, None
+from data_structures import week_parity_code   # `0`, `1`, `-`
 from data_structures import is_holiday         # False, True
 from data_structures import weekly_activities
 from data_structures import other_activities
@@ -25,7 +25,7 @@ from data_structures import deadlines
 
 
 
-def get_msg():
+def get_msg(target_user_id):
     """ obtine un mesaj sugestiv pentru a fi trimis in functie de ora curenta
     """
     dt = datetime.now()
@@ -41,11 +41,14 @@ def get_msg():
     
 
     for activ in weekly_activities:
+
+        if activ.user_id != target_user_id:
+            continue
+
         if activ.is_next_in_schedule() == True:
             msg += f"Next: {activ}"
         if activ.is_current_in_schedule() == True:
             msg += f"Now: {activ}"
-
 
 
 
@@ -185,6 +188,10 @@ def messenger_API():
 
     bot = commands.Bot(command_prefix='/', intents=intents)
 
+    # remove default bot commands (in order to replace with something else)
+    if 'help' in bot.all_commands:
+        del bot.all_commands['help']
+
     # Define your global variables here
 
 
@@ -204,7 +211,7 @@ def messenger_API():
         """
         while True:
             
-            message = get_msg()
+            message = get_msg(target_user_id)
 
             if message == '' or message is None:
                 current_time = datetime.now().strftime('%H:%M')
@@ -230,8 +237,9 @@ def messenger_API():
         welcome_message += ("Even" if week_parity == 1 else "Odd") + f" indexed week\n"
         
         welcome_message += f"\nAvailable commands:\n"
-        welcome_message += f"- `/help [cmds]`\n"
+        welcome_message += f"- `/help`\n"
         welcome_message += f"- `/help-all-cmds`\n"
+        welcome_message += f"- `/help [cmds]`\n"
         welcome_message += f"- `/clear`\n"
 
         welcome_message += f"- `/change-week-parity`\n"
@@ -254,7 +262,7 @@ def messenger_API():
         welcome_message += f"- `del-deadline`\n"
         welcome_message += f"- `del-birthday`\n"
 
-        welcome_message += f"- shutdown-bot`\n"
+        welcome_message += f"- `shutdown-bot`\n"
 
 
         # Add your commands information here
@@ -276,15 +284,40 @@ def messenger_API():
 
     @bot.command(name='help-all-cmds', command_prefix='/')
     async def help_all_cmds(ctx, *args):
-        """Command to display help information"""
+        """Command to display help information for all commands"""
         
         help_msg = f"Welcome to the help menu, {ctx.author.mention}!\n\n"
         help_msg += f"Available commands:\n"
         
+        help_msg += help_all_cmds_msg()
+        
+        # sending the message to the chat
+        await ctx.send(help_msg)
 
 
-        help_msg += f"- `/help [cmds]` = opens the manual of the specified commands\n"
+    @bot.command(name='help', command_prefix='/')
+    async def help_cmd(ctx, *args):
+        """Command to display help information
+        for specified commands
+        or all of them, if there are no commands specified
+        """
+
+        help_msg = ''
+
+        if len(args) == 0:
+            help_msg = help_all_cmds_msg()
+        # sending the message to the chat
+        await ctx.send(help_msg)
+
+
+
+    def help_all_cmds_msg():
+        help_msg = ''
+        
+
+        help_msg += f"- `/help` = opens the manul of all commands\n"
         help_msg += f"- `/help-all-cmds` = opens the manul of all commands\n"
+        help_msg += f"- `/help [cmds]` = opens the manual of the specified commands\n"
         help_msg += f"- `/clear` = deletes all previous messages\n"
 
         help_msg += f"- `/change-week-parity`"
@@ -313,9 +346,7 @@ def messenger_API():
 
         help_msg += f"- `shutdown-bot` = the Discord bot will leave the chat\n"
 
-
-        # sending the message to the chat
-        await ctx.send(help_msg)
+        return help_msg
 
 
 
@@ -328,7 +359,7 @@ def messenger_API():
         deleted_count = len(deleted_messages)
         
         await ctx.send(f"{deleted_count} messages deleted.")
-        await ctx.send(f"Quick reminder: type `help-all-cmds` to see all available commands.")
+        await ctx.send(f"Quick reminder: type `/help` or /help-all-cmds` to see all available commands.")
     
 
 
