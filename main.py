@@ -28,6 +28,8 @@ from data_structures import deadlines
 
 
 
+users_schedules = []
+
 
 
 def get_msg(target_user_id):
@@ -250,14 +252,13 @@ def messenger_API():
         welcome_message += ("Even" if week_parity == 1 else "Odd") + f" indexed week\n"
         
         welcome_message += f"\nAvailable commands:\n"
-        welcome_message += f"- `/help`\n"
-        welcome_message += f"- `/help-all-cmds`\n"
-        welcome_message += f"- `/help [cmds]`\n"
-        welcome_message += f"- `/clear`\n"
+        welcome_message += f"- `/help`\n"                   # works
+        welcome_message += f"- `/help-all-cmds`\n"          # works
+        welcome_message += f"- `/help [cmds]`\n"            # works
+        welcome_message += f"- `/clear`\n"                  # works
 
-        welcome_message += f"- `/change-week-parity`\n"
-        welcome_message += f"- `/is-holiday`\n"
-        welcome_message += f"- `/is-working-week`\n"
+        welcome_message += f"- `/toggle-week-parity`\n"     # works
+        welcome_message += f"- `/toggle-holiday`\n"
 
         welcome_message += f"- `/get-today-timetable`\n"
         welcome_message += f"- `/get-weekly-timetable`\n"
@@ -281,7 +282,7 @@ def messenger_API():
         welcome_message += f"- `/del-deadline`\n"
         welcome_message += f"- `/del-birthday`\n"
 
-        welcome_message += f"- `/shutdown-bot`\n"
+        welcome_message += f"- `/shutdown-bot`\n"           # works
 
 
         # Add your commands information here
@@ -289,7 +290,6 @@ def messenger_API():
         await send_discord_message(channel, USER_ID, welcome_message)
 
         
-        users_array = []
         
         # Get the guild (server) where the bot is connected
         guild = bot.guilds[0]  # Assuming the bot is only connected to one guild
@@ -304,7 +304,7 @@ def messenger_API():
             if member == bot.user:
                 continue
             print(f"ID: {member.id}, Name: {member.name}")
-            users_array.append(ScheduleUser(member.id, member.name))
+            users_schedules.append(ScheduleUser(member.id, member.name))
 
         # Set up the task to send messages every minute
         bot.loop.create_task(send_discord_message_task(channel, USER_ID))
@@ -369,14 +369,11 @@ def messenger_API():
             if cmd == 'clear':
                 help_msg += f"- `/clear` = deletes all previous messages\n"
                 continue
-            if cmd == 'change-week-parity':
+            if cmd == 'toggle-week-parity':
                 help_msg += f"- `/change-week-parity` = the week index becomes odd if it was even and vice versa"
                 continue
-            if cmd == 'is-holiday':
-                help_msg += f"- `/is-holiday` = weekly activities will no longer be displayed"
-                continue
-            if cmd == 'is-worling-week':
-                help_msg += f"- `/is-working-week` = weekly activities will be displayed"
+            if cmd == 'toggle-holiday':
+                help_msg += f"- `/toggle-holiday` = switches between a holiday week (weekly activities will no longer be displayed) to a working week\n"
                 continue
             if cmd == 'get-today-timetable':
                 help_msg += f"- `/get-today-timetable` = gets relevant details for the today's plan\n"
@@ -453,9 +450,8 @@ def messenger_API():
         help_msg += f"- `/help-all-cmds` = opens the manul of all commands\n"
         help_msg += f"- `/clear` = deletes all previous messages\n"
 
-        help_msg += f"- `/change-week-parity` = the week index becomes odd if it was even and vice versa"
-        help_msg += f"- `/is-holiday` = weekly activities will no longer be displayed"
-        help_msg += f"- `/is-working-week` = weekly activities will be displayed"
+        help_msg += f"- `/toggle-week-parity` = the week index becomes odd if it was even and vice versa\n"
+        help_msg += f"- `/toggle-holiday` = switches between a holiday week (weekly activities will no longer be displayed) to a working week\n"
 
         help_msg += f"- `/get-today-timetable` = gets relevant details for the today's plan\n"
         help_msg += f"- `/get-weekly-timetable` = prints the schedule for this week\n"
@@ -501,7 +497,7 @@ def messenger_API():
 
     
     @bot.command(name='shutdown-bot', command_prefix='/')
-    async def shutdonw_bot(ctx, *args):
+    async def shutdown_bot(ctx, *args):
         """Command to disconect the bot
         """
 
@@ -526,6 +522,33 @@ def messenger_API():
             await ctx.send(err_msg)
     
     
+
+    @bot.command(name='toggle-week-parity', command_prefix='/')
+    async def toogle_week_parity(ctx, *args):
+
+        schedule_user = ScheduleUser.get_user_by_id(ctx.author.id, users_schedules)
+
+        if schedule_user.week_parity == 1:
+            schedule_user.week_parity = 0
+            await ctx.send(f"{ctx.author.mention} a trecut la o saptamana para.")
+        else:
+            schedule_user.week_parity = 1
+            await ctx.send(f"{ctx.author.mention} a trecut la o saptamana impara.")
+
+
+    @bot.command(name='toggle-holiday', command_prefix='/')
+    async def togle_holiday(ctx, *args):
+        schedule_user = ScheduleUser.get_user_by_id(ctx.author.id, users_schedules)
+
+        if schedule_user.week_parity == False:
+            schedule_user.week_parity = True
+            await ctx.send(f"{ctx.author.mention} este in vacanta.")
+        else:
+            schedule_user.week_parity = False
+            await ctx.send(f"{ctx.author.mention} este intr-o saptamana lucratoare")
+
+
+        
 
 
     # Run the bot
