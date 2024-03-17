@@ -7,6 +7,7 @@ import asyncio
 import json
 
 import os, sys
+from dotenv import load_dotenv      # environment variables
 
 from datetime import datetime
 
@@ -25,6 +26,10 @@ from data_structures import is_holiday         # False, True
 from data_structures import weekly_activities
 from data_structures import other_activities
 from data_structures import deadlines
+
+
+import random
+
 
 
 
@@ -224,12 +229,17 @@ def messenger_API():
             message = get_msg(target_user_id)
 
             if message == '' or message is None:
-                current_time = datetime.now().strftime('%H:%M')
-                message = f"Current time: {current_time}\nNothing for now"
-
-            message = f"<@{target_user_id}> {message}"
-
-            await send_discord_message(channel, target_user_id, message)
+                # pentru a afisa ora din minut in minut, atunci cand nu e nimic de afisat
+                # decomenteaza liniile de mai jos
+                # 
+                # # current_time = datetime.now().strftime('%H:%M')
+                # # message =  f"Current time: {current_time}\nNothing for now"
+                # # message = f"<@{target_user_id}> {message}"
+                # #await send_discord_message(channel, target_user_id, message)
+                pass
+            else:
+                message = f"<@{target_user_id}> {message}"
+                await send_discord_message(channel, target_user_id, message)
 
             # 60 de secunde = un minut
             await asyncio.sleep(60)
@@ -258,7 +268,7 @@ def messenger_API():
         welcome_message += f"- `/clear`\n"                  # works
 
         welcome_message += f"- `/toggle-week-parity`\n"     # works
-        welcome_message += f"- `/toggle-holiday`\n"
+        welcome_message += f"- `/toggle-holiday`\n"         # works
 
         welcome_message += f"- `/get-today-timetable`\n"
         welcome_message += f"- `/get-weekly-timetable`\n"
@@ -513,15 +523,7 @@ def messenger_API():
         else:
             await ctx.send(f"Sorry, {ctx.author.mention}, you are not authorized to use this command.")
 
-    @bot.event
-    async def on_command_error(ctx, error):
-        if isinstance(error, commands.CommandNotFound):
-            cmd_name = ctx.message.content.split()[0]
-            err_msg = f"Unknown command `{cmd_name}`.\n"
-            err_msg += f"Type `/help-all-cmds` to see available commands."
-            await ctx.send(err_msg)
-    
-    
+
 
     @bot.command(name='toggle-week-parity', command_prefix='/')
     async def toogle_week_parity(ctx, *args):
@@ -548,7 +550,63 @@ def messenger_API():
             await ctx.send(f"{ctx.author.mention} este intr-o saptamana lucratoare")
 
 
-        
+    
+
+    @bot.command(name='get-today-timetable', command_prefix='/')
+    async def get_today_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-today-timetable')
+        # TODO: trimite un mesaj care contine un tabel, ca cele generate de fisierele markdown
+
+
+
+
+
+    @bot.event
+    async def on_command_error(ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            cmd_name = ctx.message.content.split()[0]
+            err_msg = f"Unknown command `{cmd_name}`.\n"
+            err_msg += f"Type `/help-all-cmds` to see available commands."
+            await ctx.send(err_msg)
+    
+    
+    
+    @bot.event
+    async def command_under_construction(ctx, cmd_name):
+        """Va afisa un text de eroare si un`GIF` sugestiv
+        """
+
+
+        await ctx.send(f"Sorry.... the command `{cmd_name}` is not available right now.")
+
+
+
+        try:
+            dir_content = os.listdir('images/under-construction')
+            gif_names = [name for name in dir_content if name.endswith('.gif')]
+        except:
+            print(f"Missing path for GIFs `images/under-construction`")
+            return
+
+
+        while True:
+            
+            # ne asigram trimiterea unui `GIF` pe discord
+
+            try:
+
+                gif_name = random.choice(gif_names)
+
+                file_location = os.path.join(os.getcwd(), 'images/under-construction', gif_name)
+
+                with open(file_location, 'rb') as f:
+                    gif_file = discord.File(f)
+            
+                await ctx.send(file=gif_file)
+                break
+            
+            except:
+                continue
 
 
     # Run the bot
@@ -585,7 +643,6 @@ def check_env_vars():
 
 def main():
 
-
     nr_args = len(sys.argv)
 
     if nr_args > 1:
@@ -598,4 +655,5 @@ def main():
 
 
 if __name__ == '__main__':
+    load_dotenv()
     main()

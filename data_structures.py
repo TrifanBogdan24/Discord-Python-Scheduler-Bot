@@ -20,7 +20,7 @@ class ScheduleUser:
         """
         self.id = id
         self.username = username
-        self.week_parity = '1'  # prima saptama (impar)
+        self.week_parity = 1  # prima saptama (impar)
         self.is_holiday = False
         self.weekly_activities = []
         self.other_activities = []

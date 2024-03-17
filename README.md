@@ -73,5 +73,5 @@ doar ca intampina problema la trimiterea efectiva.
 
 ## 24/7
 Pentru ca `bot`-ul sa functioneze fara problemele la orice ora din zi si din naopte,
-este nevoie 
+este nevoie de o statie online, drept pentru care am ales o masina virtuala `AWS`.
 
