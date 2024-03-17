@@ -4,47 +4,6 @@
 from datetime import datetime
 
 
-# global variables:
-week_parity_code = '1'        # '0', '1', '-'
-is_holiday = False          # False, True
-weekly_activities = []
-other_activities = []
-deadlines = []
-
-
-
-
-class ScheduleUser:
-    def __init__(self, id, username):
-        """constructor care instantiaza clasa
-        """
-        self.id = id
-        self.username = username
-        self.week_parity = 1  # prima saptama (impar)
-        self.is_holiday = False
-        self.weekly_activities = []
-        self.other_activities = []
-        self.deadlines = []
-        self.birthdays = []
-
-
-    @staticmethod
-    def get_user_by_id(id, users):
-        """ extrage un user dintr-o lista de utilizatarii
-        intoarce `None` daca `id`-ul acestuia nu se afla in lista
-        """
-
-        if type(users) != list:
-            return None
-
-        for user in users:
-            if type(user) != ScheduleUser:
-                continue
-            if user.id == id:
-                return user
-        
-        return None
-
 
 class DataHandler:
     """clasa inglobeaza mai multe metode statice
@@ -226,6 +185,42 @@ class DataHandler:
 
 
 
+class ScheduleUser:
+    def __init__(self, id, username):
+        """constructor care instantiaza clasa
+        """
+        self.id = id
+        self.username = username
+        self.week_parity = 1  # prima saptama (impar)
+        self.is_holiday = False
+        self.weekly_activities = []
+        self.other_activities = []
+        self.deadlines = []
+        self.birthdays = []
+
+        # by default, ora 21:00 (9 PM)
+        self.bedtime = None
+
+
+
+    @staticmethod
+    def get_user_by_id(id, users):
+        """ extrage un user dintr-o lista de utilizatarii
+        intoarce `None` daca `id`-ul acestuia nu se afla in lista
+        """
+
+        if type(users) != list:
+            return None
+
+        for user in users:
+            if type(user) != ScheduleUser:
+                continue
+            if user.id == id:
+                return user
+        
+        return None
+
+
 
 
 
@@ -330,7 +325,7 @@ class WeeklyActivity:
         return to_string
 
 
-    def is_next_in_schedule(self):
+    def is_next_in_schedule(self, user):
         """verifica daca exista o diferenta de exact 0 sau 10 minute
         intre eveniment si ora curentul
 
@@ -355,11 +350,11 @@ class WeeklyActivity:
         # verifications
 
 
-        if is_holiday == True:
+        if user.is_holiday == True:
             return False
 
 
-        if activ_week_parity_code != None and activ_week_parity_code != week_parity_code:
+        if activ_week_parity_code != None and activ_week_parity_code != user.week_parity:
             # activitatea are paritatea saptamanii diferita cu saptamana curenta
             return False
 
@@ -378,7 +373,7 @@ class WeeklyActivity:
         return True
 
 
-    def is_current_in_schedule(self):
+    def is_current_in_schedule(self, user):
         # acum
         dt = datetime.now()
         h_m = dt.strftime('%H:%M')
@@ -396,11 +391,11 @@ class WeeklyActivity:
 
         # verificari
 
-        if is_holiday == True:
+        if user.is_holiday == True:
             return False
 
 
-        if activ_week_parity_code != None and activ_week_parity_code != week_parity_code:
+        if activ_week_parity_code != None and activ_week_parity_code != user.week_parity:
             # activitatea are paritatea saptamanii diferita cu saptamana curenta
             return False
 

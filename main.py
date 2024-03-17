@@ -20,12 +20,6 @@ from data_structures import Deadline
 from data_structures import Birthday
 
 
-# global variables
-from data_structures import week_parity_code   # `0`, `1`, `-`
-from data_structures import is_holiday         # False, True
-from data_structures import weekly_activities
-from data_structures import other_activities
-from data_structures import deadlines
 
 
 import random
@@ -51,15 +45,19 @@ def get_msg(target_user_id):
     msg = ''
 
     
+    user = ScheduleUser.get_user_by_id(target_user_id, users_schedules)
 
-    for activ in weekly_activities:
+
+    for activ in user.weekly_activities:
 
         if activ.user_id != target_user_id:
             continue
 
-        if activ.is_next_in_schedule() == True:
+
+
+        if activ.is_next_in_schedule(user) == True:
             msg += f"Next: {activ}"
-        if activ.is_current_in_schedule() == True:
+        if activ.is_current_in_schedule(user) == True:
             msg += f"Now: {activ}"
 
 
@@ -89,19 +87,11 @@ def get_min(h_m):
 
 def hardcode_schedule(user_id):
 
-    # `global` specifica interpretorului sa nu defineasca variabilele acestea in functie
-    # ci sa foloseasca variabilele globale care poarte aceste nume
-    global week_parity
-    global is_holiday
-    global weekly_activities
-    global other_activities
-    global deadlines
+    global users_schedules
+    print(user_id)
+    owner_user = ScheduleUser.get_user_by_id(user_id, users_schedules)
 
-    week_parity_code = 1        # 0, 1
-    is_holiday = False          # False, True
     weekly_activities = []
-    other_activities = []
-    deadlines = []
 
 
     # WeeklyActivity('name', 'location', 'descritption', 'day', 'start_time_h_m', 'stop_time_h_m', 'week_parity)
@@ -157,35 +147,14 @@ def hardcode_schedule(user_id):
 
 
 
+    owner_user.weekly_activities = weekly_activities
 
-def init_reset_schedule():
-    """ reseteaza tot orarul la o varianta care nu contine nimic
-    """
 
-    # `global` specifica interpretorului sa nu defineasca variabilele acestea in functie
-    # ci sa foloseasca variabilele globale care poarta aceste nume
-    global week_parity
-    global is_holiday
-    global weekly_activities
-    global other_activities
-    global deadlines
-
-    week_parity = 1
-    is_holiday = False
-    weekly_activities = []
-    other_activities = []
-    deadlines = []
 
 
 
 
 def messenger_API():
-
-    global week_parity
-    global is_holiday
-    global weekly_activities
-    global other_activities
-    global deadlines
 
 
     if check_env_vars() == True:
@@ -211,11 +180,8 @@ def messenger_API():
     # Define your global variables here
 
 
-    users_array = []
+    global users_schedules
 
-    init_reset_schedule()
-
-    hardcode_schedule(int(USER_ID))
     
 
     async def send_discord_message(channel, target_user_id, msg_content):
@@ -223,23 +189,25 @@ def messenger_API():
         """
         await channel.send(f"{msg_content}")
 
+
     async def send_discord_message_task(channel, target_user_id):
         """ La fiecare 5 minute, functia va itera acitivitatile
         si va raporta daca urmeaza sa se intample ceva
         sau vreo activitate este in desfasuare
         """
+
         while True:
-            
+        
             message = get_msg(target_user_id)
 
             if message == '' or message is None:
                 # pentru a afisa ora din minut in minut, atunci cand nu e nimic de afisat
                 # decomenteaza liniile de mai jos
-                # 
+                
                 # # current_time = datetime.now().strftime('%H:%M')
                 # # message =  f"Current time: {current_time}\nNothing for now"
                 # # message = f"<@{target_user_id}> {message}"
-                # #await send_discord_message(channel, target_user_id, message)
+                # # await send_discord_message(channel, target_user_id, message)
                 pass
             else:
                 message = f"<@{target_user_id}> {message}"
@@ -247,6 +215,62 @@ def messenger_API():
 
             # 60 de secunde = un minut
             await asyncio.sleep(60)
+
+
+    async def send_goodnight_message_task(channel, target_user_id):
+        """
+        """
+
+        user = ScheduleUser.get_user_by_id(target_user_id, users_schedules)
+
+        while True:
+
+            dt = datetime.now()
+            h_m = dt.strftime('%H:%M')
+            timestamp_now = DataHandler.get_timestamp(h_m)
+
+            timestamp_user_bedtime = DataHandler.get_timestamp(user.bedtime)
+
+            if timestamp_user_bedtime == timestamp_now:
+                await goodnight_message_helper(channel, target_user_id)
+                
+            # verifica ora din minut in munit
+            await asyncio.sleep(60)
+
+
+    async def goodnight_message_helper(channel, target_user_id):
+
+        try:
+            dir_content = os.listdir('images/bedtime')
+            gif_names = [name for name in dir_content if name.endswith('.gif')]
+        except:
+            print(f"Missing path for GIFs `images/bedtime`")
+            return
+
+
+        while True:
+            try:
+                gif_name = random.choice(gif_names)
+
+                file_location = os.path.join(os.getcwd(), 'images/bedtime', gif_name)
+
+                with open(file_location, 'rb') as f:
+                    gif_file = discord.File(f)
+
+
+                msg = f"Good night, <@{target_user_id}>!\n"
+
+                # trimite un mesaj text, alaturi de o imagine GIF
+                await channel.send(f"{msg}", file=gif_file)
+                break
+            except:
+                continue
+        
+            
+
+    
+
+        
 
     @bot.event
     async def on_ready():
@@ -263,7 +287,6 @@ def messenger_API():
 
         # The first message sent by the bot
         welcome_message = f"Hello @everyone, I'm your bot! I am now online and ready to assist.\n"
-        welcome_message += ("Even" if week_parity == 1 else "Odd") + f" indexed week\n"
         
         welcome_message += f"\nAvailable commands:\n"
         welcome_message += f"- `/help`\n"                   # works
@@ -273,6 +296,9 @@ def messenger_API():
 
         welcome_message += f"- `/toggle-week-parity`\n"     # works
         welcome_message += f"- `/toggle-holiday`\n"         # works
+        welcome_message += f"- `/get-week-state`\n"
+        welcome_message += f"- `/get-week-parity`\n"
+        welcome_message += f"- `/get-is-holiday-parity`\n"
 
         welcome_message += f"- `/get-today-timetable`\n"
         welcome_message += f"- `/get-weekly-timetable`\n"
@@ -324,8 +350,12 @@ def messenger_API():
             print(f"ID: {member.id}, Name: {member.name}")
             users_schedules.append(ScheduleUser(member.id, member.name))
 
-        # Set up the task to send messages every minute
-        bot.loop.create_task(send_discord_message_task(channel, USER_ID))
+            # Set up the task to send messages from times to time to each user
+            bot.loop.create_task(send_discord_message_task(channel, member.id))
+            bot.loop.create_task(send_goodnight_message_task(channel, member.id))
+
+        hardcode_schedule(int(USER_ID))
+
 
 
     @bot.event
@@ -388,10 +418,19 @@ def messenger_API():
                 help_msg += f"- `/clear` = deletes all previous messages\n"
                 continue
             if cmd == 'toggle-week-parity':
-                help_msg += f"- `/change-week-parity` = the week index becomes odd if it was even and vice versa"
+                help_msg += f"- `/toggle-week-parity` = the week index becomes odd if it was even and vice versa"
                 continue
             if cmd == 'toggle-holiday':
                 help_msg += f"- `/toggle-holiday` = switches between a holiday week (weekly activities will no longer be displayed) to a working week\n"
+                continue
+            if cmd == 'get-week-state':
+                help_msg += f"- `/get-week-state` = displays information regarding the parity of the week and whether it is a holoday or not\n"
+                continue
+            if cmd == 'get-week-parity':
+                help_msg += f"- `/get-week-parity` = displays wheter the index of the week is odd or even\n"
+                continue
+            if cmd == 'get-is-holiday':
+                help_msg += f"- `/get-is-holiday` = prints the state of the week\n"
                 continue
             if cmd == 'get-today-timetable':
                 help_msg += f"- `/get-today-timetable` = gets relevant details for the today's plan\n"
@@ -476,6 +515,8 @@ def messenger_API():
 
         help_msg += f"- `/toggle-week-parity` = the week index becomes odd if it was even and vice versa\n"
         help_msg += f"- `/toggle-holiday` = switches between a holiday week (weekly activities will no longer be displayed) to a working week\n"
+        help_msg += f"- `/get-week-parity` = displays wheter the index of the week is odd or even\n"
+        help_msg += f"- `/get-is-holiday` = prints the state of the week\n"
 
         help_msg += f"- `/get-today-timetable` = gets relevant details for the today's plan\n"
         help_msg += f"- `/get-weekly-timetable` = prints the schedule for this week\n"
@@ -524,9 +565,6 @@ def messenger_API():
     async def shutdown_bot(ctx, *args):
         """Command to disconect the bot
         """
-
-
-
         
         if int(ctx.author.id) == int(USER_ID):
             # disconecting the bot
@@ -540,16 +578,21 @@ def messenger_API():
 
 
     @bot.command(name='toggle-week-parity', command_prefix='/')
-    async def toogle_week_parity(ctx, *args):
+    async def toggle_week_parity(ctx, *args):
 
         schedule_user = ScheduleUser.get_user_by_id(ctx.author.id, users_schedules)
 
+        if schedule_user.is_holiday == True:
+            await ctx.send(f"{ctx.authro.mention} este in vacanta.")
+            return
+
+
         if schedule_user.week_parity == 1:
             schedule_user.week_parity = 0
-            await ctx.send(f"{ctx.author.mention} a trecut la o saptamana para.")
+            await ctx.send(f"{ctx.author.mention} ai trecut la o saptamana para.")
         else:
             schedule_user.week_parity = 1
-            await ctx.send(f"{ctx.author.mention} a trecut la o saptamana impara.")
+            await ctx.send(f"{ctx.author.mention} ai trecut la o saptamana impara.")
 
 
     @bot.command(name='toggle-holiday', command_prefix='/')
@@ -558,13 +601,74 @@ def messenger_API():
 
         if schedule_user.week_parity == False:
             schedule_user.week_parity = True
-            await ctx.send(f"{ctx.author.mention} este in vacanta.")
+            await ctx.send(f"{ctx.author.mention} esti in vacanta.")
         else:
             schedule_user.week_parity = False
-            await ctx.send(f"{ctx.author.mention} este intr-o saptamana lucratoare")
+            await ctx.send(f"{ctx.author.mention} esti intr-o saptamana lucratoare")
 
 
-    
+    @bot.command(name='get-week-state', command_prefix='/')
+    async def get_week_state(ctx, *args):
+        schedule_user = ScheduleUser.get_user_by_id(ctx.author.id, users_schedules)
+
+        week_parity = schedule_user.week_parity
+        is_holiday = schedule_user.is_holiday
+
+        msg = ''
+        paritate = ('para' if week_parity == 1 else 'impara')
+        neg_par = ('impara' if week_parity == 1 else 'para')
+
+
+        if is_holiday == True:
+            msg = f"Esti in vacanta momentan"
+            msg += f", nu ai de ce sa iti faci griji :)"
+            msg += f"\nFriendly reminder: urmatoarea saptamana de lucru va fi {paritate}"
+        else:
+            msg = f"Saptamana de lucru curenta este {neg_par}\n"
+
+
+        await ctx.send(f"{ctx.author.mention} {msg}")
+
+
+
+    @bot.command(name='get-week-parity', command_prefix='/')
+    async def get_week_parity(ctx, *args):
+        schedule_user = ScheduleUser.get_user_by_id(ctx.author.id, users_schedules)
+
+        week_parity = schedule_user.week_parity
+        is_holiday = schedule_user.is_holiday
+
+        msg = ''
+
+        if week_parity == 1:
+            msg = f"Esti intr-o saptamana impara\n"
+        else:
+            msg = f"Esti intr-o saptamana para\n"
+
+
+        await ctx.send(f"{ctx.author.mention} {msg}")
+
+
+    @bot.command(name='get-is-holiday', command_prefix='/')
+    async def get_is_holiday(ctx, *args):
+        schedule_user = ScheduleUser.get_user_by_id(ctx.author.id, users_schedules)
+
+        week_parity = schedule_user.week_parity
+        is_holiday = schedule_user.is_holiday
+
+        msg = ''
+
+        if is_holiday == True:
+            msg = f"Esti liber saptamana asta.\n"
+        else:
+            msg = f"Esti intr-o saptamana lucratoare.\n"
+
+
+        await ctx.send(f"{ctx.author.mention} {msg}")
+
+
+
+
 
     @bot.command(name='get-today-timetable', command_prefix='/')
     async def get_today_timetable(ctx, *args):
