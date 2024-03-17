@@ -515,7 +515,7 @@ def messenger_API():
         deleted_count = len(deleted_messages)
         
         await ctx.send(f"{deleted_count} messages deleted.")
-        await ctx.send(f"Quick reminder: type `/help` or /help-all-cmds` to see all available commands.")
+        await ctx.send(f"Quick reminder: type `/help` or `/help-all-cmds` to see all available commands.")
     
 
 
