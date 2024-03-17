@@ -491,14 +491,14 @@ def messenger_API():
         help_msg += f"- `get-next-deadline` = displays the next deadline in chalendar\n"
         help_msg += f"- `get-next-birthday` = displays the next birthday in chalendar\n"
 
-        help_msg += f"- `add-weekly-activity 'name' 'location' 'description' 'day' 'start_time' 'stop_time' 'week_parity`\n"
-        help_msg += f"- `add-other-activity 'name' 'location' 'description' 'day' 'month' 'year' start_time' 'stop_time`\n"
+        help_msg += f"- `add-weekly-activity [name] [location] [description] [day] [start_time HH:MM] [stop_time HH:MM] [week_parity]`\n"
+        help_msg += f"- `add-other-activity [name] [location] [description] [day] [month] [year] [start_time HH:MM] [stop_time HH:MM]`\n"
 
-        help_msg += f"- `del-weekly-acitvity 'name' 'day' 'week-parity' 'start_time' 'stop_time`\n"
-        help_msg += f"- `del-other-acitivity 'name' 'day' 'month' 'year' 'start_time' 'stop_time' `\n"
-        help_msg += f"- `del-deadline 'name' 'day' 'month' 'year' 'time'`\n"
-        help_msg += f"- `del-birthday 'name' 'day' 'month' 'year'`\n"
-        help_msg += f"- `del-birthday 'name'`\n"
+        help_msg += f"- `del-weekly-acitvity [name] [day] [week-parity] [start_time HH:MM] [stop_time HH:MM]`\n"
+        help_msg += f"- `del-other-acitivity [name] [day] [month] [year] [start_time HH:MM] [stop_time HH:MM]`\n"
+        help_msg += f"- `del-deadline [name] [day] [month] [year] [time HH:MM]`\n"
+        help_msg += f"- `del-birthday [name] [day] [month] [year]`\n"
+        help_msg += f"- `del-birthday [name]`\n"
 
         help_msg += f"- `shutdown-bot` = the Discord bot will leave the chat\n"
 
