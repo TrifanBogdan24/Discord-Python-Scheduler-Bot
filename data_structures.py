@@ -605,18 +605,19 @@ class OtherActivity:
 
 
 class Deadline:
-    def __init__(self, user_id, name, day, month, year, time):
+    def __init__(self, user_id, name, description, day, month, year, time):
         """constructorul defualt al clasei
         """
         self.user_id = user_id
         self.name = name
+        self.description = description
         self.day = day
         self.month = momth
         self.year = year
         self.time = time
 
     
-    def __new__(self, user_id, name, day, month, year, time):
+    def __new__(self, user_id, description, name, day, month, year, time):
         """un constructor mai restrictiv:
         
         se face niste verificari inainte de atribuire:

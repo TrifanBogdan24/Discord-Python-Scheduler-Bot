@@ -288,7 +288,11 @@ def messenger_API():
 
         welcome_message += f"- `/add-weekly-activity`\n"
         welcome_message += f"- `/add-other-activity`\n"
+        welcome_message += f"- `/add-deadline`\n"
+        welcome_message += f"- `/add-birthday`\n"
+
         welcome_message += f"- `/del-weekly-acitvity`\n"
+        welcome_message += f"- `/del-other-acitvity`\n"
         welcome_message += f"- `/del-deadline`\n"
         welcome_message += f"- `/del-birthday`\n"
 
@@ -416,19 +420,25 @@ def messenger_API():
                 help_msg += f"- `get-next-birthday` = displays the next birthday in chalendar\n"
                 continue
             if cmd == 'add-weekly-activity':
-                help_msg += f"- `add-weekly-activity 'name' 'location' 'description' 'day' 'start_time' 'stop_time' 'week_parity`\n"
+                help_msg += f"- `add-weekly-activity [name] [location] [description] [day] [start_time HH:MM] [stop_time HH:MM] [week_parity]`\n"
                 continue
             if cmd == 'add-other-activity':
-                help_msg += f"- `add-other-activity 'name' 'location' 'description' 'day' 'month' 'year' start_time' 'stop_time`\n"
+                help_msg += f"- `add-other-activity [name] [location] [description] [day] [month] [year] [start_time HH:MM] [stop_time HH:MM]`\n"
+                continue
+            if cmd == 'add-deadline':
+                help_msg += f"- `add-deadline [name] [description] [day] [month] [year] [time HH:MM]`\n"
+                continue
+            if cmd == 'add-birthday':
+                help_msg += f"- `add-birthday [name] [day] [month] [year]`\n"
                 continue
             if cmd == 'del-weekly-acitivity':
-                help_msg += f"- `del-weekly-acitvity 'name' 'day' 'week-parity' 'start_time' 'stop_time`\n"
+                help_msg += f"- `del-weekly-acitvity [name] [day] [week-parity] [start_time HH:MM] [stop_time HH:MM]`\n"
                 continue
             if cmd == 'del-other-activity':
-                help_msg += f"- `del-other-acitivity 'name' 'day' 'month' 'year' 'start_time' 'stop_time' `\n"
+                help_msg += f"- `del-other-acitivity [name] [day] [month] [year] [start_time HH:MM] [stop_time HH:MM]`\n"
                 continue
             if cmd == 'del-deadline':
-                help_msg += f"- `del-deadline 'name' 'day' 'month' 'year' 'time'`\n"
+                help_msg += f"- `del-deadline [name] [day] [month] [year] [time HH:MM]`\n"
                 continue
             if cmd == 'del-birthday':
                 help_msg += f"- `del-birthday 'name'`\n"
@@ -559,6 +569,120 @@ def messenger_API():
 
 
 
+    @bot.command(name='get-weekly-timetable', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-weekly-timetable')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='get-deadlines-table', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-deadlines-timetable')
+        # TODO: implementeaza comanda
+
+
+
+
+    @bot.command(name='get-birthdays-table', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-birthdays-timetable')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='get-now', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-now')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='get-now-weekly-activity', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-now-weekly-activity')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='get-now-other-acitivity', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-now-other-activity')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='get-next', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-next')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='get-next-weekly-activity', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-next-weekly-activity')
+        # TODO: implementeaza comanda
+
+    @bot.command(name='get-next-other-activity', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-next-other-activity')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='get-next-deadline', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-next-deadline')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='get-next-birthday', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'get-next-birthday')
+        # TODO: implementeaza comanda
+
+
+
+    @bot.command(name='add-weekly-activity', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'add-weekly-activity')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='add-other-activity', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'add-other-activity')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='add-deadline', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'add-deadline')
+        # TODO: implementeaza comanda
+
+
+
+    @bot.command(name='add-birthday', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'add-birthday')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='del-weekly-activity', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'del-weekly-activity')
+        # TODO: implementeaza comanda
+
+    @bot.command(name='del-other-activity', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'del-other-activity')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='del-deadline', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'del-deadline')
+        # TODO: implementeaza comanda
+
+
+    @bot.command(name='del-birthday', command_prefix='/')
+    async def get_weekly_timetable(ctx, *args):
+        await command_under_construction(ctx, 'del-birthday')
+        # TODO: implementeaza comanda
 
 
     @bot.event
