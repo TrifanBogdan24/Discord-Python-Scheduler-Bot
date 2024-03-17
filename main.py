@@ -136,6 +136,10 @@ def hardcode_schedule(user_id):
     new_acitv = WeeklyActivity(user_id, 'Curs PCT', 'sala A04 LEU', 'optional', 'miercuri', '18:00', '20:00', 'par')
     append_not_none(weekly_activities, new_activ)
     # joi:
+    new_activ = WeeklyActivity(user_id, 'seminar ELTH', 'PR 003', '-', 'joi', '8:00', '10:00', 'impar')
+    append_not_none(weekly_activities, new_acitv)
+    new_activ = WeeklyActivity(user_id, 'lab ELTH', 'EB 206-207', '-', 'joi', '8:00', '10:00', 'par')
+    append_not_none(weekly_activities, new_acitv)
     new_activ = WeeklyActivity(user_id, 'sport (impar)', 'sala de sport', '-', 'joi', '10:00', '12:00', 'impar')
     append_not_none(weekly_activities, new_acitv)
     new_activ = WeeklyActivity(user_id, 'Lab SOC', 'sala ED 220', '-', 'joi', '12:00', '14:00', 'impar')
